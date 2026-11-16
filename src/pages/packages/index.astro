@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PackageCard from '../../components/PackageCard.astro';
+import { db } from '../../db';
+import { packages, categories } from '../../db/schema';
+import { eq, and, desc } from 'drizzle-orm';
+
+export const prerender = false;
+
+// Fetch live published packages and categories
+const [allPackages, allCategories] = await Promise.all([
+  db
+    .select()
+    .from(packages)
+    .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
+    .orderBy(packages.sortOrder, desc(packages.createdAt)),
+  db.select().from(categories).orderBy(categories.sortOrder),
+]);
+
+const breadcrumbs = [{ name: 'Diagnostic Tests & Packages', url: '/packages' }];
+---
+
+<BaseLayout
+  title="Diagnostic Tests & Health Packages in Jabalpur | Sun Path Lab"
+  description="Explore comprehensive pathology tests, thyroid panels, iron profiles, and full body checkup packages at Sun Path Lab, Russell Chowk, Jabalpur."
+>
+  <div class="bg-slate-100 border-b border-slate-200">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <!-- Page Header -->
+  <section class="bg-gradient-to-b from-brand-50/50 to-white py-12 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Laboratory Catalog</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Diagnostic Tests & Health Checkup Packages
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Accurate clinical pathology testing conducted by Sun Path Lab in Russell Chowk, Jabalpur. Doorstep sample collection available across the city.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filter & Packages Grid Section -->
+  <section class="py-12 bg-slate-50 min-h-[500px]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <!-- Search & Category Filters -->
+      <div class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="relative w-full md:w-96">
+          <input
+            type="text"
+            id="public-search"
+            placeholder="Search test names (e.g. Thyroid, CBC, Iron, Sugar)..."
+            class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            type="button"
+            class="filter-category-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-brand-600 text-white cursor-pointer"
+            data-category=""
+          >
+            All Tests ({allPackages.length})
+          </button>
+          {allCategories.map((c) => (
+            <button
+              type="button"
+              class="filter-category-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+              data-category={c.id}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Packages Cards Grid -->
+      <div id="packages-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {allPackages.map((pkg) => (
+          <div class="public-pkg-wrapper" data-category={pkg.categoryId || ''} data-name={pkg.name.toLowerCase()} data-tests={(Array.isArray(pkg.tests) ? pkg.tests.join(' ') : '').toLowerCase()}>
+            <PackageCard pkg={pkg} />
+          </div>
+        ))}
+      </div>
+
+      <div id="no-results" class="hidden text-center py-16 bg-white rounded-xl border border-slate-200 p-8 space-y-3">
+        <p class="text-base font-bold text-slate-800">No matching diagnostic tests found</p>
+        <p class="text-xs text-slate-500">
+          Looking for a specific investigation not listed here? Call our laboratory staff directly.
+        </p>
+        <a
+          href="tel:09300755303"
+          class="inline-block mt-2 px-5 py-2.5 rounded-lg bg-brand-600 text-white font-bold text-xs"
+        >
+          Call 09300755303
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    const searchInput = document.getElementById('public-search');
+    const categoryBtns = document.querySelectorAll('.filter-category-btn');
+    const pkgWrappers = document.querySelectorAll('.public-pkg-wrapper');
+    const noResults = document.getElementById('no-results');
+
+    let activeCategory = '';
+
+    function filterPackages() {
+      const q = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      pkgWrappers.forEach((wrapper) => {
+        const cat = wrapper.dataset.category || '';
+        const name = wrapper.dataset.name || '';
+        const tests = wrapper.dataset.tests || '';
+
+        const matchesCat = !activeCategory || cat === activeCategory;
+        const matchesQuery = !q || name.includes(q) || tests.includes(q);
+
+        if (matchesCat && matchesQuery) {
+          wrapper.style.display = '';
+          visibleCount++;
+        } else {
+          wrapper.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+
+    searchInput?.addEventListener('input', filterPackages);
+
+    categoryBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        categoryBtns.forEach((b) => {
+          b.className = 'filter-category-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer';
+        });
+        btn.className = 'filter-category-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-brand-600 text-white cursor-pointer';
+
+        activeCategory = btn.dataset.category || '';
+        filterPackages();
+      });
+    });
+  </script>
+</BaseLayout>

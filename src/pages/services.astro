@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { db } from '../db';
+import { packages } from '../db/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import PackageCard from '../components/PackageCard.astro';
+
+export const prerender = false;
+
+const featuredPackages = await db
+  .select()
+  .from(packages)
+  .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
+  .orderBy(packages.sortOrder, desc(packages.createdAt))
+  .limit(3);
+
+const breadcrumbs = [{ name: 'Diagnostic Services', url: '/services' }];
+---
+
+<BaseLayout
+  title="Pathology & Diagnostic Testing Services in Jabalpur | Sun Path Lab"
+  description="Explore clinical pathology testing services at Sun Path Lab, Russell Chowk, Jabalpur: Hematology, Biochemistry, Thyroid, Iron Panels, and Home Sample Collection."
+>
+  <div class="bg-slate-100 border-b border-slate-200">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <!-- Hero Header -->
+  <section class="bg-gradient-to-b from-brand-50/50 to-white py-14 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Clinical Departments</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Pathology & Diagnostic Testing Services
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Accurate clinical laboratory investigations performed according to ISO 9001:2015 quality procedures in Russell Chowk, Jabalpur.
+      </p>
+    </div>
+  </section>
+
+  <!-- Detailed Diagnostic Departments -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <!-- Dept 1: Hematology -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-8 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="md:col-span-8 space-y-3">
+          <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Clinical Department</span>
+          <h2 class="text-2xl font-bold text-slate-900">Hematology & Complete Blood Counts</h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Evaluation of cellular blood components including automated red blood cell indices (RBC, MCV, MCH, MCHC), total and differential white cell counts (TLC, DLC), platelet counts, hemoglobin concentration, and Erythrocyte Sedimentation Rate (ESR). Vital for detecting anemia, bacterial/viral infections, and platelet disorders.
+          </p>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 pt-2 font-medium">
+            <li class="flex items-center gap-1.5">• Complete Blood Count (CBC with ESR)</li>
+            <li class="flex items-center gap-1.5">• Platelet Count Monitoring</li>
+            <li class="flex items-center gap-1.5">• Absolute Eosinophil Count (AEC)</li>
+            <li class="flex items-center gap-1.5">• Hemoglobin Estimation (Hb)</li>
+          </ul>
+        </div>
+        <div class="md:col-span-4 bg-white p-6 rounded-xl border border-slate-200 text-center space-y-3">
+          <span class="text-xs font-bold text-slate-400 uppercase">Fast Turnaround</span>
+          <p class="text-xl font-extrabold text-brand-700">Same Day Reports</p>
+          <p class="text-[11px] text-slate-500">Usually ready within 2 to 4 hours</p>
+          <a href="/packages" class="inline-block text-xs font-bold text-brand-600 hover:underline">
+            View Blood Panels &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Dept 2: Endocrinology & Thyroid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-8 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="md:col-span-8 space-y-3">
+          <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Endocrinology</span>
+          <h2 class="text-2xl font-bold text-slate-900">Thyroid & Hormone Testing</h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Ultra-sensitive assays for Thyroid Stimulating Hormone (TSH), Total Triiodothyronine (T3), and Total Thyroxine (T4). Recommended by physicians for investigating unexplained fatigue, rapid weight fluctuations, mood changes, and monitoring thyroid medication dosages.
+          </p>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 pt-2 font-medium">
+            <li class="flex items-center gap-1.5">• Thyroid Profile (T3, T4, TSH)</li>
+            <li class="flex items-center gap-1.5">• TSH Ultra-Sensitive</li>
+            <li class="flex items-center gap-1.5">• Morning Fasting Recommendations</li>
+            <li class="flex items-center gap-1.5">• Automated Immunoassay Precision</li>
+          </ul>
+        </div>
+        <div class="md:col-span-4 bg-white p-6 rounded-xl border border-slate-200 text-center space-y-3">
+          <span class="text-xs font-bold text-slate-400 uppercase">Dedicated Profile</span>
+          <p class="text-xl font-extrabold text-brand-700">Thyroid Profile (T3/T4/TSH)</p>
+          <p class="text-[11px] text-slate-500">Same-day reporting available</p>
+          <a href="/packages" class="inline-block text-xs font-bold text-brand-600 hover:underline">
+            View Thyroid Package &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Dept 3: Iron & Anemia -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-8 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="md:col-span-8 space-y-3">
+          <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Nutritional & Anemia Profiling</span>
+          <h2 class="text-2xl font-bold text-slate-900">Iron Studies & Ferritin Testing</h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Detailed biochemical investigation of iron balance, evaluating serum iron concentrations, Total Iron Binding Capacity (TIBC), transferrin saturation, and serum ferritin (iron storage protein). Critical for diagnosing microcytic anemia, chronic fatigue, and monitoring therapeutic iron supplementation.
+          </p>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 pt-2 font-medium">
+            <li class="flex items-center gap-1.5">• Serum Iron & Ferritin</li>
+            <li class="flex items-center gap-1.5">• Total Iron Binding Capacity (TIBC)</li>
+            <li class="flex items-center gap-1.5">• Transferrin Saturation Percentage</li>
+            <li class="flex items-center gap-1.5">• Anemia Investigation Panel</li>
+          </ul>
+        </div>
+        <div class="md:col-span-4 bg-white p-6 rounded-xl border border-slate-200 text-center space-y-3">
+          <span class="text-xs font-bold text-slate-400 uppercase">Specialized Testing</span>
+          <p class="text-xl font-extrabold text-brand-700">Iron Deficiency Profile</p>
+          <p class="text-[11px] text-slate-500">Doorstep sample collection available</p>
+          <a href="/packages" class="inline-block text-xs font-bold text-brand-600 hover:underline">
+            View Iron Panel &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Dept 4: Clinical Biochemistry & Organ Panels -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-8 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="md:col-span-8 space-y-3">
+          <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Clinical Biochemistry</span>
+          <h2 class="text-2xl font-bold text-slate-900">Metabolic, Liver & Kidney Function Panels</h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Essential biochemical screening measuring blood glucose control (Fasting, PPBS, HbA1c), lipid balance (Cholesterol, Triglycerides, HDL, LDL), Liver Function Tests (SGOT, SGPT, Bilirubin, Alkaline Phosphatase), and Kidney Function Tests (Serum Creatinine, Blood Urea, Uric Acid).
+          </p>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 pt-2 font-medium">
+            <li class="flex items-center gap-1.5">• Liver Function Test (LFT)</li>
+            <li class="flex items-center gap-1.5">• Kidney Function Test (KFT)</li>
+            <li class="flex items-center gap-1.5">• Lipid Profile (Cholesterol Fractions)</li>
+            <li class="flex items-center gap-1.5">• HbA1c 3-Month Glucose Monitor</li>
+          </ul>
+        </div>
+        <div class="md:col-span-4 bg-white p-6 rounded-xl border border-slate-200 text-center space-y-3">
+          <span class="text-xs font-bold text-slate-400 uppercase">Preventive Wellness</span>
+          <p class="text-xl font-extrabold text-brand-700">Full Body Health Checkup</p>
+          <p class="text-[11px] text-slate-500">Comprehensive multi-organ screening</p>
+          <a href="/packages" class="inline-block text-xs font-bold text-brand-600 hover:underline">
+            View Full Body Packages &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Health Packages from DB -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-bold text-slate-900">Popular Packages Available Now</h2>
+        <p class="text-xs text-slate-500">Book in-centre at Russell Chowk or request doorstep collection across Jabalpur.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {featuredPackages.map((pkg) => (
+          <PackageCard pkg={pkg} />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

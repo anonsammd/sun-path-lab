@@ -1,0 +1,212 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { packages, categories, mediaAssets, siteSettings } from '../../db/schema';
+import { eq, desc, count } from 'drizzle-orm';
+import { formatCurrency } from '../../lib/utils';
+import { isCloudinaryConfigured } from '../../lib/cloudinary';
+
+export const prerender = false;
+
+// Fetch live database metrics
+const [
+  allPackages,
+  totalCategories,
+  totalMedia,
+  settingsRows,
+] = await Promise.all([
+  db.select().from(packages).where(eq(packages.isDeleted, false)).orderBy(desc(packages.updatedAt)),
+  db.select({ count: count() }).from(categories),
+  db.select({ count: count() }).from(mediaAssets),
+  db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1),
+]);
+
+const publishedCount = allPackages.filter((p) => p.isPublished).length;
+const featuredCount = allPackages.filter((p) => p.isFeatured && p.isPublished).length;
+const recentPackages = allPackages.slice(0, 5);
+const settings = settingsRows[0];
+const cloudinaryReady = isCloudinaryConfigured();
+---
+
+<AdminLayout title="Dashboard Overview" activeTab="overview">
+  <div class="space-y-8">
+    <!-- Top Welcome Greeting & Quick CTA -->
+    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Welcome to Sun Path Lab CMS</h2>
+        <p class="text-sm text-slate-500 mt-1">
+          Manage diagnostic packages, prices, home collection info, and live website settings.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a
+          href="/admin/packages/new"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create New Package</span>
+        </a>
+        <a
+          href="/admin/settings"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+        >
+          <span>Edit Site Settings</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Live Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- Total Diagnostic Packages -->
+      <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Packages</p>
+          <span class="p-2 bg-brand-50 text-brand-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">{publishedCount}</p>
+        <p class="text-xs text-slate-400 mt-1">{allPackages.length} total in database</p>
+      </div>
+
+      <!-- Featured Packages -->
+      <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Featured On Homepage</p>
+          <span class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">{featuredCount}</p>
+        <p class="text-xs text-slate-400 mt-1">Highlighted to visitors</p>
+      </div>
+
+      <!-- Categories -->
+      <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Categories</p>
+          <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">{totalCategories[0]?.count || 0}</p>
+        <p class="text-xs text-slate-400 mt-1">Full body, thyroid, iron, etc.</p>
+      </div>
+
+      <!-- Media Assets -->
+      <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Media Assets</p>
+          <span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">{totalMedia[0]?.count || 0}</p>
+        <p class="text-xs text-slate-400 mt-1">Cloudinary & verified assets</p>
+      </div>
+    </div>
+
+    <!-- Active Notice & Contact Snapshot -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">
+            Recently Updated Packages
+          </h3>
+          <a href="/admin/packages" class="text-xs font-semibold text-brand-600 hover:text-brand-800">
+            View All ({allPackages.length}) &rarr;
+          </a>
+        </div>
+
+        <div class="divide-y divide-slate-100 mt-2">
+          {recentPackages.map((pkg) => (
+            <div class="py-3 flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-bold text-slate-900">{pkg.name}</p>
+                <p class="text-xs text-slate-500">
+                  {pkg.sampleType} • {Array.isArray(pkg.tests) ? `${pkg.tests.length} tests` : 'No tests'}
+                </p>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-sm font-bold text-slate-900">
+                  {pkg.discountPrice ? formatCurrency(pkg.discountPrice) : formatCurrency(pkg.regularPrice)}
+                </span>
+                <span class={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${pkg.isPublished ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                  {pkg.isPublished ? 'Published' : 'Draft'}
+                </span>
+                <a
+                  href={`/admin/packages/${pkg.id}`}
+                  class="text-xs font-semibold text-brand-600 hover:text-brand-800"
+                >
+                  Edit
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Infrastructure Status -->
+      <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 pb-3 border-b border-slate-100">
+          System & Storage Health
+        </h3>
+
+        <div class="space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Database:</span>
+            <span class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              Neon PostgreSQL Connected
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Cloudinary Media:</span>
+            <span class={`font-bold px-2 py-0.5 rounded border ${cloudinaryReady ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-amber-700 bg-amber-50 border-amber-200'}`}>
+              {cloudinaryReady ? 'Configured & Active' : 'Fallback Local Mode'}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Notice Banner:</span>
+            <span class={`font-bold px-2 py-0.5 rounded ${settings?.isNoticeBannerActive ? 'text-emerald-700 bg-emerald-50' : 'text-slate-500 bg-slate-100'}`}>
+              {settings?.isNoticeBannerActive ? 'Active' : 'Disabled'}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Primary Phone:</span>
+            <span class="font-bold text-slate-800">{settings?.primaryPhone}</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">WhatsApp:</span>
+            <span class="font-bold text-slate-800">{settings?.whatsappNumber}</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100">
+          <a
+            href="/admin/export"
+            class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+          >
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Download Database Backup</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

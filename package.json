@@ -1,0 +1,36 @@
+{
+  "name": "sunpathlab",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts",
+    "admin:create": "tsx scripts/create-admin.ts"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/netlify": "^6.2.1",
+    "@astrojs/tailwind": "^6.0.2",
+    "@neondatabase/serverless": "^0.10.4",
+    "@node-rs/argon2": "^2.0.2",
+    "astro": "^5.4.2",
+    "cloudinary": "^2.5.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "lucide-astro": "^0.556.0",
+    "nanoid": "^5.0.9",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2"
+  }
+}

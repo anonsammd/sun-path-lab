@@ -1,0 +1,95 @@
+---
+import { siteConfig } from '../config/site';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FloatingActions from '../components/FloatingActions.astro';
+import { generateLocalBusinessSchema } from '../lib/seo';
+import { getCachedSiteSettings } from '../lib/utils';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  canonical?: string;
+  schema?: Record<string, any>;
+}
+
+const {
+  title = `${siteConfig.name} — Best Pathology & Blood Test Lab in Jabalpur`,
+  description = siteConfig.description,
+  image = '/images/logo.jpeg',
+  canonical = Astro.url.href,
+  schema,
+} = Astro.props;
+
+const settings = await getCachedSiteSettings();
+const defaultSchema = generateLocalBusinessSchema(settings);
+const siteUrl = siteConfig.url;
+const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="/images/logo.jpeg" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0891b2" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonical} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+    <!-- Google Font: Atkinson Hyperlegible for maximum healthcare readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- LocalBusiness / MedicalBusiness Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(defaultSchema)} />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+    <!-- Clinical Navigation Header -->
+    <Header
+      currentPath={Astro.url.pathname}
+      phone={settings?.primaryPhone}
+      hours={settings?.operatingHours}
+      noticeBanner={settings?.noticeBanner}
+      isNoticeBannerActive={settings?.isNoticeBannerActive}
+    />
+
+    <!-- Main Content Container -->
+    <main id="main-content" class="flex-grow pb-20 md:pb-0">
+      <slot />
+    </main>
+
+    <!-- Professional Footer -->
+    <Footer settings={settings} />
+
+    <!-- Floating Quick Actions -->
+    <FloatingActions
+      phone={settings?.primaryPhone}
+      whatsappNumber={settings?.whatsappNumber}
+    />
+  </body>
+</html>

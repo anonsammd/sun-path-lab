@@ -1,0 +1,374 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { db } from '../../../db';
+import { categories } from '../../../db/schema';
+
+export const prerender = false;
+
+const allCategories = await db.select().from(categories).orderBy(categories.sortOrder);
+---
+
+<AdminLayout title="Create Diagnostic Package" activeTab="packages">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">New Diagnostic Package</h2>
+        <p class="text-sm text-slate-500 mt-1">
+          Add a new test panel or full body checkup package directly into PostgreSQL.
+        </p>
+      </div>
+      <a
+        href="/admin/packages"
+        class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+      >
+        &larr; Back to Packages
+      </a>
+    </div>
+
+    <div id="form-alert" class="hidden p-4 rounded-lg text-sm font-medium"></div>
+
+    <form id="package-form" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+      <!-- Section 1: Basic Information -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Package Details
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label for="name" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Package Name *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              placeholder="e.g. Executive Full Body Health Checkup"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="slug" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Custom Slug (optional)
+            </label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              placeholder="auto-generated-from-name"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+            />
+          </div>
+
+          <div>
+            <label for="categoryId" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Category
+            </label>
+            <select
+              id="categoryId"
+              name="categoryId"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 bg-white"
+            >
+              <option value="">Select Category</option>
+              {allCategories.map((c) => (
+                <option value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label for="regularPrice" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Regular Price (₹)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="regularPrice"
+              name="regularPrice"
+              placeholder="1499.00"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+            <p class="text-[11px] text-slate-400 mt-1">Leave blank if price is custom / inquiry only</p>
+          </div>
+
+          <div>
+            <label for="discountPrice" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Discounted / Offer Price (₹)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="discountPrice"
+              name="discountPrice"
+              placeholder="999.00"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="description" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Description *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="3"
+              required
+              placeholder="Detailed description of clinical diagnostic scope and recommendations..."
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Clinical Details -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Sample & Collection Requirements
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="sampleType" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Sample Type
+            </label>
+            <input
+              type="text"
+              id="sampleType"
+              name="sampleType"
+              value="Blood Sample"
+              placeholder="e.g. Blood Sample, Urine"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="fastingRequired" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Fasting Guideline
+            </label>
+            <input
+              type="text"
+              id="fastingRequired"
+              name="fastingRequired"
+              value="10–12 Hours Fasting Required"
+              placeholder="e.g. No fasting required"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="reportTime" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Report Turnaround Time
+            </label>
+            <input
+              type="text"
+              id="reportTime"
+              name="reportTime"
+              value="Same Day (Within 12–24 Hours)"
+              placeholder="e.g. Same Day / 24 Hours"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Tests Included (One test per line) -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Included Tests List (One test per line)
+        </h3>
+        <div>
+          <label for="tests" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+            Test Parameters
+          </label>
+          <textarea
+            id="tests"
+            name="tests"
+            rows="6"
+            placeholder="Complete Blood Count (CBC with ESR)&#10;Fasting Blood Sugar&#10;Lipid Profile&#10;Liver Function Test (LFT)&#10;Kidney Function Test (KFT)"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+          ></textarea>
+          <p class="text-[11px] text-slate-400 mt-1">Enter each diagnostic parameter on a new line.</p>
+        </div>
+      </div>
+
+      <!-- Section 4: Image & Display Options -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Image & Display Settings
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="imageUrl" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Image URL / Path
+            </label>
+            <input
+              type="text"
+              id="imageUrl"
+              name="imageUrl"
+              value="/images/lab_image.webp"
+              placeholder="/images/lab_image.webp or Cloudinary URL"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="sortOrder" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Display Sort Order
+            </label>
+            <input
+              type="number"
+              id="sortOrder"
+              name="sortOrder"
+              value="0"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div class="sm:col-span-2 flex flex-wrap gap-6 pt-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="isFeatured"
+                name="isFeatured"
+                class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4"
+              />
+              <span class="text-xs font-bold text-slate-700">Feature on Homepage</span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="isPublished"
+                name="isPublished"
+                checked
+                class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4"
+              />
+              <span class="text-xs font-bold text-slate-700">Published (Visible to public)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: SEO Metadata -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          SEO & Search Metadata
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label for="seoTitle" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              SEO Title Tag
+            </label>
+            <input
+              type="text"
+              id="seoTitle"
+              name="seoTitle"
+              placeholder="e.g. Full Body Health Checkup in Jabalpur | Sun Path Lab"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="seoDescription" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Meta Description
+            </label>
+            <textarea
+              id="seoDescription"
+              name="seoDescription"
+              rows="2"
+              placeholder="e.g. Book an affordable Full Body Health Checkup at Sun Path Lab, Russell Chowk, Jabalpur. Home collection available."
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Actions -->
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+        <a
+          href="/admin/packages"
+          class="px-5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          id="save-btn"
+          class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-2"
+        >
+          <span>Save Package to PostgreSQL</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script is:inline>
+    const csrfToken = document.getElementById('csrf-meta')?.dataset.csrfToken || '';
+    const form = document.getElementById('package-form');
+    const alertBox = document.getElementById('form-alert');
+    const saveBtn = document.getElementById('save-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving package...';
+      alertBox.className = 'hidden';
+
+      const testsRaw = document.getElementById('tests').value;
+      const tests = testsRaw
+        .split('\n')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        slug: document.getElementById('slug').value.trim(),
+        categoryId: document.getElementById('categoryId').value || null,
+        regularPrice: document.getElementById('regularPrice').value || null,
+        discountPrice: document.getElementById('discountPrice').value || null,
+        description: document.getElementById('description').value.trim(),
+        sampleType: document.getElementById('sampleType').value.trim(),
+        fastingRequired: document.getElementById('fastingRequired').value.trim(),
+        reportTime: document.getElementById('reportTime').value.trim(),
+        imageUrl: document.getElementById('imageUrl').value.trim(),
+        sortOrder: parseInt(document.getElementById('sortOrder').value, 10) || 0,
+        isFeatured: document.getElementById('isFeatured').checked,
+        isPublished: document.getElementById('isPublished').checked,
+        seoTitle: document.getElementById('seoTitle').value.trim(),
+        seoDescription: document.getElementById('seoDescription').value.trim(),
+        tests,
+      };
+
+      try {
+        const res = await fetch('/api/packages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to save package');
+
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+        alertBox.textContent = 'Package created successfully! Redirecting...';
+
+        setTimeout(() => {
+          window.location.href = '/admin/packages';
+        }, 500);
+      } catch (err) {
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200 block';
+        alertBox.textContent = err.message || 'Error saving package';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Package to PostgreSQL';
+      }
+    });
+  </script>
+</AdminLayout>

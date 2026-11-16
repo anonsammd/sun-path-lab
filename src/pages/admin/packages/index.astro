@@ -1,0 +1,315 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { db } from '../../../db';
+import { packages, categories } from '../../../db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { formatCurrency } from '../../../lib/utils';
+
+export const prerender = false;
+
+// Fetch all packages and categories
+const [allPackages, allCategories] = await Promise.all([
+  db
+    .select({
+      id: packages.id,
+      name: packages.name,
+      slug: packages.slug,
+      regularPrice: packages.regularPrice,
+      discountPrice: packages.discountPrice,
+      sampleType: packages.sampleType,
+      isFeatured: packages.isFeatured,
+      isPublished: packages.isPublished,
+      sortOrder: packages.sortOrder,
+      tests: packages.tests,
+      categoryName: categories.name,
+      updatedAt: packages.updatedAt,
+    })
+    .from(packages)
+    .leftJoin(categories, eq(packages.categoryId, categories.id))
+    .where(eq(packages.isDeleted, false))
+    .orderBy(packages.sortOrder, desc(packages.createdAt)),
+  db.select().from(categories),
+]);
+---
+
+<AdminLayout title="Diagnostic Packages" activeTab="packages">
+  <div class="space-y-6">
+    <!-- Top Bar with Actions & Search -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Manage Diagnostic Packages</h2>
+        <p class="text-sm text-slate-500 mt-1">
+          Create, edit, toggle visibility, and update prices in PostgreSQL without redeploying.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a
+          href="/admin/packages/new"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Add New Package</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div class="relative w-full sm:w-80">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search packages or tests..."
+          class="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <select
+          id="category-filter"
+          class="px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+        >
+          <option value="">All Categories</option>
+          {allCategories.map((c) => (
+            <option value={c.name}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <!-- Packages Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+              <th class="py-3.5 px-4">Package Name</th>
+              <th class="py-3.5 px-4">Category</th>
+              <th class="py-3.5 px-4">Price (₹)</th>
+              <th class="py-3.5 px-4">Tests Included</th>
+              <th class="py-3.5 px-4 text-center">Status</th>
+              <th class="py-3.5 px-4 text-center">Featured</th>
+              <th class="py-3.5 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="package-table-body" class="divide-y divide-slate-100">
+            {allPackages.map((pkg) => {
+              const testCount = Array.isArray(pkg.tests) ? pkg.tests.length : 0;
+              return (
+                <tr class="hover:bg-slate-50/80 transition-colors package-row" data-name={pkg.name.toLowerCase()} data-category={pkg.categoryName || ''}>
+                  <td class="py-3.5 px-4">
+                    <p class="font-bold text-slate-900 text-sm">{pkg.name}</p>
+                    <p class="text-[11px] text-slate-400 font-mono">/packages/{pkg.slug}</p>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <span class="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px] font-medium">
+                      {pkg.categoryName || 'General'}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 font-bold text-slate-900">
+                    {pkg.discountPrice ? (
+                      <div>
+                        <span>{formatCurrency(pkg.discountPrice)}</span>
+                        {pkg.regularPrice && (
+                          <span class="text-slate-400 text-[10px] line-through ml-1">
+                            {formatCurrency(pkg.regularPrice)}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      formatCurrency(pkg.regularPrice)
+                    )}
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-600">
+                    <span class="font-semibold text-slate-900">{testCount}</span> tests
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    <button
+                      type="button"
+                      class="toggle-publish-btn cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors"
+                      data-id={pkg.id}
+                      data-published={pkg.isPublished ? 'true' : 'false'}
+                      class:list={[
+                        pkg.isPublished
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                          : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200',
+                      ]}
+                    >
+                      <span class={`w-1.5 h-1.5 rounded-full ${pkg.isPublished ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                      <span>{pkg.isPublished ? 'Published' : 'Draft'}</span>
+                    </button>
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    <button
+                      type="button"
+                      class="toggle-featured-btn cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors"
+                      data-id={pkg.id}
+                      data-featured={pkg.isFeatured ? 'true' : 'false'}
+                      class:list={[
+                        pkg.isFeatured
+                          ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                          : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100',
+                      ]}
+                    >
+                      <span>{pkg.isFeatured ? '★ Featured' : '☆ Normal'}</span>
+                    </button>
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <a
+                        href={`/admin/packages/${pkg.id}`}
+                        class="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold rounded transition-colors"
+                      >
+                        Edit
+                      </a>
+                      <a
+                        href={`/packages/${pkg.slug}`}
+                        target="_blank"
+                        class="p-1.5 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100"
+                        title="View Public Page"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <button
+                        type="button"
+                        class="delete-btn p-1.5 text-red-400 hover:text-red-700 rounded hover:bg-red-50 cursor-pointer"
+                        data-id={pkg.id}
+                        data-name={pkg.name}
+                        title="Delete Package"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    const csrfToken = document.getElementById('csrf-meta')?.dataset.csrfToken || '';
+
+    // Search and filter
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const rows = document.querySelectorAll('.package-row');
+
+    function applyFilter() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = categoryFilter.value;
+
+      rows.forEach((row) => {
+        const name = row.dataset.name || '';
+        const rowCat = row.dataset.category || '';
+        const matchesSearch = !q || name.includes(q);
+        const matchesCat = !cat || rowCat === cat;
+
+        if (matchesSearch && matchesCat) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput?.addEventListener('input', applyFilter);
+    categoryFilter?.addEventListener('change', applyFilter);
+
+    // Toggle Published Status
+    document.querySelectorAll('.toggle-publish-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const current = btn.dataset.published === 'true';
+        const next = !current;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/packages/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-csrf-token': csrfToken,
+            },
+            body: JSON.stringify({ isPublished: next }),
+          });
+
+          if (!res.ok) throw new Error('Failed to update status');
+
+          btn.dataset.published = String(next);
+          window.location.reload();
+        } catch (err) {
+          alert('Error updating status: ' + err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Toggle Featured Status
+    document.querySelectorAll('.toggle-featured-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const current = btn.dataset.featured === 'true';
+        const next = !current;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/packages/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-csrf-token': csrfToken,
+            },
+            body: JSON.stringify({ isFeatured: next }),
+          });
+
+          if (!res.ok) throw new Error('Failed to update featured flag');
+          window.location.reload();
+        } catch (err) {
+          alert('Error updating featured flag: ' + err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Delete confirmation
+    document.querySelectorAll('.delete-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+
+        if (!confirm(`Are you sure you want to safely remove "${name}"? It will be unpublished and archived.`)) {
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/packages/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-csrf-token': csrfToken,
+            },
+          });
+
+          if (!res.ok) throw new Error('Failed to delete package');
+          window.location.reload();
+        } catch (err) {
+          alert('Error deleting package: ' + err.message);
+        }
+      });
+    });
+  </script>
+</AdminLayout>

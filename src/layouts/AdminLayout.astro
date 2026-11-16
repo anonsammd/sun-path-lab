@@ -1,0 +1,189 @@
+---
+import { validateSession, SESSION_COOKIE_NAME } from '../lib/auth';
+import { generateCsrfToken } from '../lib/csrf';
+
+interface Props {
+  title?: string;
+  activeTab?: string;
+}
+
+const { title = 'Admin Dashboard — Sun Path Lab', activeTab = 'overview' } = Astro.props;
+
+// Server-side authentication check
+const sessionId = Astro.cookies.get(SESSION_COOKIE_NAME)?.value;
+if (!sessionId) {
+  return Astro.redirect('/admin/login', 302);
+}
+
+const auth = await validateSession(sessionId);
+if (!auth) {
+  Astro.cookies.delete(SESSION_COOKIE_NAME, { path: '/' });
+  return Astro.redirect('/admin/login', 302);
+}
+
+const admin = auth.admin;
+const csrfToken = generateCsrfToken(sessionId);
+
+const navItems = [
+  { id: 'overview', label: 'Dashboard Overview', href: '/admin', icon: 'home' },
+  { id: 'packages', label: 'Diagnostic Packages', href: '/admin/packages', icon: 'clipboard' },
+  { id: 'settings', label: 'Site Content & CMS', href: '/admin/settings', icon: 'settings' },
+  { id: 'media', label: 'Image Management', href: '/admin/media', icon: 'image' },
+  { id: 'export', label: 'Backup & Data Export', href: '/admin/export', icon: 'download' },
+];
+---
+
+<!doctype html>
+<html lang="en" class="h-full bg-slate-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <link rel="icon" type="image/jpeg" href="/images/logo.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="h-full flex flex-col font-sans text-slate-800">
+    <div class="flex-1 flex overflow-hidden">
+      <!-- Admin Sidebar (Desktop) -->
+      <aside class="hidden md:flex md:w-64 md:flex-col bg-slate-900 text-slate-300 border-r border-slate-800">
+        <!-- Brand Info -->
+        <div class="h-20 flex items-center px-6 border-b border-slate-800">
+          <div class="bg-white px-3 py-1.5 rounded-lg shadow-xs">
+            <img src="/images/logo.png" alt="Sun Path Lab Logo" class="h-8 w-auto object-contain" />
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <a
+                href={item.href}
+                class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                  isActive
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                {item.id === 'overview' && (
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                )}
+                {item.id === 'packages' && (
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                )}
+                {item.id === 'settings' && (
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+                {item.id === 'media' && (
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {item.id === 'export' && (
+                  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                )}
+                <span>{item.label}</span>
+              </a>
+            );
+          })}
+        </nav>
+
+        <!-- Live Site & Logout footer -->
+        <div class="p-4 border-t border-slate-800 space-y-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-between px-3.5 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+          >
+            <span>View Public Website</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <form action="/api/auth/logout" method="POST">
+            <button
+              type="submit"
+              class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer text-left"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sign Out ({admin.name})</span>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <!-- Top Header Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0">
+          <div class="flex items-center gap-4">
+            <h2 class="text-lg font-bold text-slate-900">{title}</h2>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+              <p class="text-xs font-bold text-slate-900">{admin.name}</p>
+              <p class="text-[11px] text-slate-500">{admin.email} ({admin.role})</p>
+            </div>
+            <a
+              href="/"
+              target="_blank"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-md border border-brand-200 transition-colors"
+            >
+              <span>Live Site</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+        </header>
+
+        <!-- Mobile Navigation Tabs (Horizontal scroll on mobile) -->
+        <div class="md:hidden bg-slate-900 px-4 py-2 flex items-center gap-2 overflow-x-auto border-b border-slate-800 text-xs">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={`px-3 py-1.5 rounded-md font-semibold whitespace-nowrap ${
+                activeTab === item.id ? 'bg-brand-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+          <form action="/api/auth/logout" method="POST" class="ml-auto inline-block">
+            <button type="submit" class="text-red-400 hover:text-red-300 px-2 py-1 whitespace-nowrap text-xs font-semibold">
+              Sign Out
+            </button>
+          </form>
+        </div>
+
+        <!-- Injected CSRF token metadata for client-side scripts -->
+        <div id="csrf-meta" data-csrf-token={csrfToken} class="hidden"></div>
+
+        <!-- Page Body Slot -->
+        <div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

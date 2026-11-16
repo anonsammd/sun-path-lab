@@ -1,0 +1,139 @@
+---
+import { siteConfig } from '../config/site';
+
+interface Props {
+  settings?: any;
+}
+
+const { settings } = Astro.props;
+
+const phone = settings?.primaryPhone || siteConfig.contact.primaryPhone;
+const landline = settings?.landline || siteConfig.contact.landline;
+const address = settings?.address || siteConfig.address.street;
+const hours = settings?.operatingHours || siteConfig.hours.status;
+---
+
+<footer class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+      <!-- Col 1: Brand & Certification -->
+      <div class="space-y-4">
+        <div class="inline-block bg-white px-3 py-2 rounded-xl shadow-sm">
+          <img
+            src="/images/logo.png"
+            alt="Sun Path Lab Logo"
+            class="h-10 w-auto object-contain"
+            width="140"
+            height="42"
+            loading="lazy"
+          />
+        </div>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Accurate pathology testing, comprehensive health packages, thyroid & iron panels, and punctual doorstep sample collection in Jabalpur.
+        </p>
+        <div class="flex items-center gap-2 pt-1">
+          <img
+            src="/images/ISO9001-2015.webp"
+            alt="ISO 9001:2015 Certified"
+            class="h-9 w-auto rounded border border-slate-700 bg-white p-0.5"
+            width="40"
+            height="36"
+            loading="lazy"
+          />
+          <div class="text-xs">
+            <p class="font-semibold text-slate-200">ISO 9001:2015</p>
+            <p class="text-slate-400">Certified Quality Management</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: Diagnostic Services & Packages -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Diagnostic Panels</h3>
+        <ul class="space-y-2.5 text-sm">
+          <li>
+            <a href="/packages" class="hover:text-brand-300 transition-colors cursor-pointer">
+              Full Body Health Packages
+            </a>
+          </li>
+          <li>
+            <a href="/packages" class="hover:text-brand-300 transition-colors cursor-pointer">
+              Thyroid Profile (T3, T4, TSH)
+            </a>
+          </li>
+          <li>
+            <a href="/packages" class="hover:text-brand-300 transition-colors cursor-pointer">
+              Iron & Anemia Screening
+            </a>
+          </li>
+          <li>
+            <a href="/packages" class="hover:text-brand-300 transition-colors cursor-pointer">
+              Complete Blood Count (CBC)
+            </a>
+          </li>
+          <li>
+            <a href="/packages" class="hover:text-brand-300 transition-colors cursor-pointer">
+              Diabetes & Glucose Monitoring
+            </a>
+          </li>
+          <li>
+            <a href="/home-collection" class="hover:text-brand-300 transition-colors cursor-pointer text-brand-400 font-medium">
+              Doorstep Sample Collection &rarr;
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Quick Links & Patient Guide -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Quick Links</h3>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/" class="hover:text-brand-300 transition-colors">Home</a></li>
+          <li><a href="/about" class="hover:text-brand-300 transition-colors">About Sun Path Lab</a></li>
+          <li><a href="/services" class="hover:text-brand-300 transition-colors">Diagnostic Services</a></li>
+          <li><a href="/home-collection" class="hover:text-brand-300 transition-colors">Home Sample Collection</a></li>
+          <li><a href="/contact" class="hover:text-brand-300 transition-colors">Contact & Directions</a></li>
+          <li><a href="/admin/login" class="text-slate-500 hover:text-slate-400 transition-colors text-xs">Laboratory Staff Portal</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Verified Contact & Address -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Visit Sun Path Lab</h3>
+        <p class="text-sm text-slate-300 leading-snug">
+          {address}
+        </p>
+        <p class="text-xs text-brand-400 font-medium">
+          Landmark: Opposite Jabalpur Hospital Old Gate, Russell Chowk
+        </p>
+        <p class="text-xs text-slate-400">
+          Google Plus Code: <span class="font-mono text-slate-300">{siteConfig.address.plusCode}</span>
+        </p>
+        <div class="pt-2 space-y-1.5 text-sm">
+          <p class="flex items-center gap-2">
+            <span class="text-slate-400">Mobile:</span>
+            <a href="tel:09300755303" class="text-white hover:text-brand-300 font-semibold">{phone}</a>
+          </p>
+          <p class="flex items-center gap-2">
+            <span class="text-slate-400">Landline:</span>
+            <a href={`tel:${landline.replace(/[^0-9]/g, '')}`} class="text-white hover:text-brand-300">{landline}</a>
+          </p>
+          <p class="flex items-center gap-2 text-xs text-emerald-400 pt-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+            {hours}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Disclaimer & Copyright -->
+    <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <p>
+        &copy; {new Date().getFullYear()} Sun Path Lab (सुन पथ लैब), Russell Chowk, Jabalpur. All rights reserved.
+      </p>
+      <p class="max-w-xl text-center md:text-right text-[11px] text-slate-500">
+        Medical Notice: Diagnostic tests are clinical investigations intended to assist licensed physicians in medical evaluation. Reports do not constitute self-directed medical advice or automated diagnosis.
+      </p>
+    </div>
+  </div>
+</footer>

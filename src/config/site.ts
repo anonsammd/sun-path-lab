@@ -1,0 +1,46 @@
+export const siteConfig = {
+  name: 'Sun Path Lab',
+  hindiName: 'सुन पथ लैब',
+  tagline: 'Trusted Pathology & Diagnostic Centre in Jabalpur',
+  description:
+    'Sun Path Lab offers reliable blood tests, thyroid & iron panels, full body health checkups, and convenient home sample collection at Russell Chowk, Jabalpur. ISO 9001:2015 certified.',
+  url: 'https://sunpathlab.com',
+  address: {
+    street: 'Shop No. 2, Sidhhi Vinayak Plaza, in front of Jabalpur Hospital Old Gate',
+    area: 'Russell Chowk',
+    city: 'Jabalpur',
+    state: 'Madhya Pradesh',
+    pincode: '482001',
+    country: 'India',
+    landmark: 'Opposite Jabalpur Hospital Old Gate, Russell Chowk',
+    plusCode: '5W6P+XC, Jabalpur, Madhya Pradesh',
+  },
+  contact: {
+    primaryPhone: '09300755303',
+    primaryPhoneDisplay: '+91 93007 55303',
+    secondaryPhone: '7000719306',
+    secondaryPhoneDisplay: '+91 70007 19306',
+    landline: '0761-3562885',
+    whatsappNumber: '9300755303',
+    whatsappUrl: 'https://wa.me/919300755303?text=Hello%20Sun%20Path%20Lab,%20I%20would%20like%20to%20inquire%20about%20a%20test/package.',
+  },
+  hours: {
+    status: 'Open until 10:00 PM',
+    note: 'Home collection slots available from morning.',
+  },
+  ratings: {
+    score: '4.9',
+    maxScore: '5.0',
+    reviewCount: 77,
+    source: 'Google Business Profile snapshot',
+  },
+  certification: 'ISO 9001:2015 Certified',
+  navLinks: [
+    { label: 'Home', href: '/' },
+    { label: 'About Us', href: '/about' },
+    { label: 'Diagnostic Packages', href: '/packages' },
+    { label: 'Services', href: '/services' },
+    { label: 'Home Collection', href: '/home-collection' },
+    { label: 'Contact', href: '/contact' },
+  ],
+};

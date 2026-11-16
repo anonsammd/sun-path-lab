@@ -1,0 +1,439 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { db } from '../../../db';
+import { packages, categories } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/packages');
+}
+
+const [packageRows, allCategories] = await Promise.all([
+  db
+    .select()
+    .from(packages)
+    .where(and(eq(packages.id, id), eq(packages.isDeleted, false)))
+    .limit(1),
+  db.select().from(categories).orderBy(categories.sortOrder),
+]);
+
+if (packageRows.length === 0) {
+  return Astro.redirect('/admin/packages');
+}
+
+const pkg = packageRows[0];
+const testsText = Array.isArray(pkg.tests) ? pkg.tests.join('\n') : '';
+---
+
+<AdminLayout title={`Edit ${pkg.name}`} activeTab="packages">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-xl font-bold text-slate-900">Edit Package</h2>
+          <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+            {pkg.id}
+          </span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          Last updated: {pkg.updatedAt ? new Date(pkg.updatedAt).toLocaleString('en-IN') : 'N/A'}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          href={`/packages/${pkg.slug}`}
+          target="_blank"
+          class="px-3 py-2 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors flex items-center gap-1.5"
+        >
+          <span>View Public Page</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+        <a
+          href="/admin/packages"
+          class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+        >
+          &larr; Back
+        </a>
+      </div>
+    </div>
+
+    <div id="form-alert" class="hidden p-4 rounded-lg text-sm font-medium"></div>
+
+    <form id="package-form" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6" data-id={pkg.id}>
+      <!-- Section 1: Basic Information -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Package Details
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label for="name" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Package Name *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              value={pkg.name}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="slug" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Slug (URL Identifier)
+            </label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              value={pkg.slug}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+            />
+          </div>
+
+          <div>
+            <label for="categoryId" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Category
+            </label>
+            <select
+              id="categoryId"
+              name="categoryId"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 bg-white"
+            >
+              <option value="">Select Category</option>
+              {allCategories.map((c) => (
+                <option value={c.id} selected={c.id === pkg.categoryId}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label for="regularPrice" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Regular Price (₹)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="regularPrice"
+              name="regularPrice"
+              value={pkg.regularPrice || ''}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+            <p class="text-[11px] text-slate-400 mt-1">Leave empty if customized / contact lab</p>
+          </div>
+
+          <div>
+            <label for="discountPrice" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Discounted / Offer Price (₹)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="discountPrice"
+              name="discountPrice"
+              value={pkg.discountPrice || ''}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="description" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Description *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="3"
+              required
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{pkg.description}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Clinical Details -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Sample & Collection Requirements
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="sampleType" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Sample Type
+            </label>
+            <input
+              type="text"
+              id="sampleType"
+              name="sampleType"
+              value={pkg.sampleType || 'Blood Sample'}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="fastingRequired" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Fasting Guideline
+            </label>
+            <input
+              type="text"
+              id="fastingRequired"
+              name="fastingRequired"
+              value={pkg.fastingRequired || 'Fasting not required'}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="reportTime" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Report Turnaround Time
+            </label>
+            <input
+              type="text"
+              id="reportTime"
+              name="reportTime"
+              value={pkg.reportTime || 'Same Day'}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Tests Included -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Included Tests List (One test per line)
+        </h3>
+        <div>
+          <label for="tests" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+            Test Parameters
+          </label>
+          <textarea
+            id="tests"
+            name="tests"
+            rows="6"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+          >{testsText}</textarea>
+        </div>
+      </div>
+
+      <!-- Section 4: Image & Display Options -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Image & Display Settings
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="imageUrl" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Image URL / Path
+            </label>
+            <input
+              type="text"
+              id="imageUrl"
+              name="imageUrl"
+              value={pkg.imageUrl || '/images/lab_image.webp'}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="sortOrder" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Display Sort Order
+            </label>
+            <input
+              type="number"
+              id="sortOrder"
+              name="sortOrder"
+              value={pkg.sortOrder || 0}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div class="sm:col-span-2 flex flex-wrap gap-6 pt-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="isFeatured"
+                name="isFeatured"
+                checked={pkg.isFeatured}
+                class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4"
+              />
+              <span class="text-xs font-bold text-slate-700">Feature on Homepage</span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="isPublished"
+                name="isPublished"
+                checked={pkg.isPublished}
+                class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4"
+              />
+              <span class="text-xs font-bold text-slate-700">Published (Visible on site)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: SEO Metadata -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          SEO & Search Metadata
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label for="seoTitle" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              SEO Title Tag
+            </label>
+            <input
+              type="text"
+              id="seoTitle"
+              name="seoTitle"
+              value={pkg.seoTitle || ''}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="seoDescription" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Meta Description
+            </label>
+            <textarea
+              id="seoDescription"
+              name="seoDescription"
+              rows="2"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{pkg.seoDescription || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Actions -->
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
+        <button
+          type="button"
+          id="delete-btn"
+          class="px-4 py-2.5 text-xs font-bold text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+        >
+          Archive / Delete Package
+        </button>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="/admin/packages"
+            class="px-5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            Cancel
+          </a>
+          <button
+            type="submit"
+            id="save-btn"
+            class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer"
+          >
+            Update Package in PostgreSQL
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script is:inline>
+    const csrfToken = document.getElementById('csrf-meta')?.dataset.csrfToken || '';
+    const form = document.getElementById('package-form');
+    const alertBox = document.getElementById('form-alert');
+    const saveBtn = document.getElementById('save-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+    const packageId = form.dataset.id;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Updating package...';
+      alertBox.className = 'hidden';
+
+      const testsRaw = document.getElementById('tests').value;
+      const tests = testsRaw
+        .split('\n')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        slug: document.getElementById('slug').value.trim(),
+        categoryId: document.getElementById('categoryId').value || null,
+        regularPrice: document.getElementById('regularPrice').value || null,
+        discountPrice: document.getElementById('discountPrice').value || null,
+        description: document.getElementById('description').value.trim(),
+        sampleType: document.getElementById('sampleType').value.trim(),
+        fastingRequired: document.getElementById('fastingRequired').value.trim(),
+        reportTime: document.getElementById('reportTime').value.trim(),
+        imageUrl: document.getElementById('imageUrl').value.trim(),
+        sortOrder: parseInt(document.getElementById('sortOrder').value, 10) || 0,
+        isFeatured: document.getElementById('isFeatured').checked,
+        isPublished: document.getElementById('isPublished').checked,
+        seoTitle: document.getElementById('seoTitle').value.trim(),
+        seoDescription: document.getElementById('seoDescription').value.trim(),
+        tests,
+      };
+
+      try {
+        const res = await fetch(`/api/packages/${packageId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update package');
+
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+        alertBox.textContent = 'Package updated successfully! Changes are live immediately on the website.';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Update Package in PostgreSQL';
+      } catch (err) {
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200 block';
+        alertBox.textContent = err.message || 'Error updating package';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Update Package in PostgreSQL';
+      }
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to safely archive/delete this diagnostic package?')) {
+        return;
+      }
+
+      deleteBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/packages/${packageId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
+        });
+
+        if (!res.ok) throw new Error('Failed to delete package');
+        window.location.href = '/admin/packages';
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+        deleteBtn.disabled = false;
+      }
+    });
+  </script>
+</AdminLayout>

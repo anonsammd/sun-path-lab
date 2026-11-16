@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { db } from '../db';
+import { siteSettings } from '../db/schema';
+import { eq } from 'drizzle-orm';
+import { siteConfig } from '../config/site';
+
+export const prerender = false;
+
+const rows = await db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1);
+const settings = rows[0] || {
+  address: siteConfig.address.street,
+  landmark: siteConfig.address.landmark,
+  primaryPhone: siteConfig.contact.primaryPhone,
+  secondaryPhone: siteConfig.contact.secondaryPhone,
+  landline: siteConfig.contact.landline,
+  whatsappNumber: siteConfig.contact.whatsappNumber,
+  operatingHours: siteConfig.hours.status,
+  plusCode: siteConfig.address.plusCode,
+};
+
+const breadcrumbs = [{ name: 'Contact & Location', url: '/contact' }];
+const waUrl = `https://wa.me/91${settings.whatsappNumber}?text=Hello%20Sun%20Path%20Lab,%20I%20have%20an%20inquiry%20regarding%20tests%20and%20visiting%20hours.`;
+---
+
+<BaseLayout
+  title="Contact Sun Path Lab — Russell Chowk, Jabalpur"
+  description="Contact Sun Path Lab in Russell Chowk, Jabalpur. Phone: 09300755303. Address: Shop No. 2, Sidhhi Vinayak Plaza, Opp. Jabalpur Hospital Old Gate."
+>
+  <div class="bg-slate-100 border-b border-slate-200">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <section class="bg-gradient-to-b from-brand-50/50 to-white py-14 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Get in Touch</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Contact & Location Details
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Visit our diagnostic centre in central Jabalpur or connect with our support desk for testing instructions and home collection appointments.
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact Cards & Map -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <!-- Contact Details (Left Column) -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- Card 1: Phone Numbers -->
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>Phone & WhatsApp</span>
+            </h2>
+
+            <div class="space-y-3 text-sm">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 text-xs">Primary Mobile:</span>
+                <a href="tel:09300755303" class="font-bold text-brand-700 hover:text-brand-900">{settings.primaryPhone}</a>
+              </div>
+
+              {settings.secondaryPhone && (
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                  <span class="text-slate-500 text-xs">Secondary Mobile:</span>
+                  <a href={`tel:${settings.secondaryPhone}`} class="font-bold text-slate-800 hover:text-brand-700">{settings.secondaryPhone}</a>
+                </div>
+              )}
+
+              {settings.landline && (
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                  <span class="text-slate-500 text-xs">Landline:</span>
+                  <a href={`tel:${settings.landline.replace(/[^0-9]/g, '')}`} class="font-bold text-slate-800 hover:text-brand-700">{settings.landline}</a>
+                </div>
+              )}
+
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-slate-500 text-xs">WhatsApp Helpdesk:</span>
+                <a href={waUrl} target="_blank" rel="noopener noreferrer" class="font-bold text-emerald-600 hover:text-emerald-700">
+                  {settings.whatsappNumber}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Physical Address -->
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Laboratory Address</span>
+            </h2>
+
+            <div class="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p class="font-semibold text-slate-900">{settings.address}</p>
+              <p class="text-brand-700 font-bold">Landmark: {settings.landmark}</p>
+              <p class="text-slate-400 font-mono text-xs">Plus Code: {settings.plusCode}</p>
+            </div>
+
+            <div class="pt-2">
+              <a
+                href="https://maps.google.com/?q=Shop+2+Sidhhi+Vinayak+Plaza+Russell+Chowk+Jabalpur"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 hover:underline"
+              >
+                <span>Open in Google Maps App &rarr;</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 3: Operating Hours -->
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Laboratory Timings</span>
+            </h2>
+            <p class="text-sm font-bold text-emerald-700">{settings.operatingHours}</p>
+            <p class="text-xs text-slate-500">
+              Home sample collection phlebotomists are dispatched in scheduled morning and afternoon intervals.
+            </p>
+          </div>
+        </div>
+
+        <!-- Google Map Embed (Right Column) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-md overflow-hidden">
+            <iframe
+              src="https://maps.google.com/maps?q=Russell+Chowk+Jabalpur&t=&z=16&ie=UTF8&iwloc=&output=embed"
+              class="w-full h-[450px] rounded-xl border-0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Sun Path Lab Russell Chowk Map"
+            ></iframe>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+            <span>Opposite Jabalpur Hospital Old Gate, Russell Chowk, Jabalpur</span>
+            <a
+              href="https://maps.google.com/?q=Shop+2+Sidhhi+Vinayak+Plaza+Russell+Chowk+Jabalpur"
+              target="_blank"
+              class="font-bold text-brand-700 hover:underline"
+            >
+              Get Turn-by-Turn Directions &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+
+const breadcrumbs = [{ name: 'Home Sample Collection', url: '/home-collection' }];
+const waUrl = 'https://wa.me/919300755303?text=Hello%20Sun%20Path%20Lab,%20I%20would%20like%20to%20book%20a%20doorstep%20home%20sample%20collection%20in%20Jabalpur.';
+---
+
+<BaseLayout
+  title="Home Sample Collection in Jabalpur | Sun Path Lab"
+  description="Book convenient doorstep blood sample collection anywhere in Jabalpur with Sun Path Lab. Sterile equipment, punctual phlebotomists, and prompt WhatsApp reports."
+>
+  <div class="bg-slate-100 border-b border-slate-200">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <!-- Hero Banner -->
+  <section class="bg-gradient-to-b from-brand-50/50 to-white py-14 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Doorstep Convenience</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Home Sample Collection Across Jabalpur
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Safe, hygienic blood sample collection by certified phlebotomists in the comfort of your home. Avoid traffic, parking, and laboratory waiting times.
+      </p>
+    </div>
+  </section>
+
+  <!-- Process & Guidelines -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-7 space-y-6 text-sm text-slate-600 leading-relaxed">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Designed for Patient Safety and Ease
+          </h2>
+          <p>
+            Whether you need routine blood examinations, fasting blood glucose monitoring, thyroid assessments, or an elderly relative's health panel, Sun Path Lab offers dependable home collection throughout Jabalpur.
+          </p>
+
+          <div class="space-y-4 pt-2">
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                ✓
+              </span>
+              <div>
+                <strong class="text-slate-900 block text-sm">100% Single-Use Sterile Vacutainers</strong>
+                <span class="text-xs text-slate-500">We utilize factory-sealed, single-use vacuum collection tubes and needles opened exclusively in front of the patient.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                ✓
+              </span>
+              <div>
+                <strong class="text-slate-900 block text-sm">Temperature-Regulated Cold Chain</strong>
+                <span class="text-xs text-slate-500">Collected blood specimens are transported in insulated, temperature-monitored carrier bags to ensure analytical integrity.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                ✓
+              </span>
+              <div>
+                <strong class="text-slate-900 block text-sm">Punctual Morning & Daytime Slots</strong>
+                <span class="text-xs text-slate-500">Slots are coordinated to suit your schedule, especially for tests requiring strictly timed overnight fasting.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Request Card -->
+        <div class="lg:col-span-5">
+          <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-lg space-y-5">
+            <div class="border-b border-slate-200 pb-3">
+              <h3 class="text-lg font-bold text-slate-900">Book Home Visit Directly</h3>
+              <p class="text-xs text-slate-500 mt-1">Direct contact with Russell Chowk centre</p>
+            </div>
+
+            <div class="space-y-3">
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-md cursor-pointer"
+              >
+                <span>Request on WhatsApp (09300755303)</span>
+              </a>
+
+              <a
+                href="tel:09300755303"
+                class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-brand-700 hover:bg-brand-800 transition-colors shadow-md cursor-pointer"
+              >
+                <span>Call Directly: 09300755303</span>
+              </a>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 space-y-2 text-xs text-slate-500">
+              <p>• <strong>Location:</strong> Russell Chowk, Jabalpur (482001)</p>
+              <p>• <strong>Operating Hours:</strong> Open daily until 10:00 PM</p>
+              <p>• <strong>Notice:</strong> Home collection slots are confirmed upon phone or WhatsApp inquiry.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step by step workflow -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">The 4-Step Process</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          How to Prepare for Your Home Visit
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="text-2xl font-black text-brand-600">1</span>
+          <h3 class="font-bold text-slate-900 text-sm">Send Doctor's Prescription or Test Names</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            WhatsApp us your doctor's prescription slip or list of tests required.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="text-2xl font-black text-brand-600">2</span>
+          <h3 class="font-bold text-slate-900 text-sm">Confirm Address & Morning Slot</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Share your Jabalpur landmark/address and select a convenient collection time.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="text-2xl font-black text-brand-600">3</span>
+          <h3 class="font-bold text-slate-900 text-sm">Sample Collection at Home</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Our polite phlebotomist collects your blood sample swiftly and aseptically.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="text-2xl font-black text-brand-600">4</span>
+          <h3 class="font-bold text-slate-900 text-sm">Receive Verified Digital Reports</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Verified report PDFs are sent straight to your WhatsApp and email.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

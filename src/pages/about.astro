@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+
+const breadcrumbs = [{ name: 'About Sun Path Lab', url: '/about' }];
+---
+
+<BaseLayout
+  title="About Sun Path Lab — Russell Chowk, Jabalpur"
+  description="Learn about Sun Path Lab in Russell Chowk, Jabalpur. Trusted pathology testing, ISO 9001:2015 certified quality, and reliable home sample collection."
+>
+  <div class="bg-slate-100 border-b border-slate-200">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <!-- Hero Banner -->
+  <section class="bg-gradient-to-b from-brand-50/50 to-white py-14 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-brand-600">About Our Laboratory</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Dedicated Diagnostic Excellence in Jabalpur
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Providing accessible, accurate, and ethical pathology testing to patients, families, and doctors across Jabalpur from Russell Chowk.
+      </p>
+    </div>
+  </section>
+
+  <!-- Story & Facility Section -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <!-- Story Copy -->
+        <div class="lg:col-span-7 space-y-5 text-sm sm:text-base text-slate-600 leading-relaxed">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Our Commitment to Reliable Pathology
+          </h2>
+
+          <p>
+            Sun Path Lab was established to meet the essential diagnostic needs of Jabalpur residents with clinical precision, respectful service, and transparent care. Located centrally at <strong>Shop No. 2, Sidhhi Vinayak Plaza, in front of the Jabalpur Hospital Old Gate at Russell Chowk</strong>, our centre serves as a dependable diagnostic partner for daily blood tests, thyroid evaluations, iron-deficiency panels, and comprehensive health checkups.
+          </p>
+
+          <p>
+            We recognize that behind every test tube is a patient seeking clarity about their health or a physician planning vital medical care. We adhere to rigorous pre-analytical sample preparation, automated analyzer calibrations, and careful specimen custody from the moment of blood draw to final report delivery.
+          </p>
+
+          <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-900 text-sm mb-1">ISO 9001:2015 Certified</p>
+              <p class="text-slate-500">
+                Systematic quality management protocols governing analytical procedures and customer service satisfaction.
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-900 text-sm mb-1">4.9 / 5 Star Rating</p>
+              <p class="text-slate-500">
+                Recognized across 77 verified Google reviews for supportive staff, punctuality, and accurate diagnostic reports.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real Lab Photographs -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-md">
+            <img
+              src="/images/lab_image.webp"
+              alt="Sun Path Lab Diagnostic Testing Workspace"
+              class="w-full h-64 object-cover"
+              width="600"
+              height="350"
+              loading="lazy"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+              <img
+                src="/images/reception.webp"
+                alt="Sun Path Lab Reception Desk"
+                class="w-full h-36 object-cover"
+                width="300"
+                height="180"
+                loading="lazy"
+              />
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900 flex items-center justify-center p-4">
+              <div class="text-center text-white">
+                <p class="text-xs text-brand-300 font-bold uppercase tracking-wider">Quality Standard</p>
+                <p class="text-base font-extrabold mt-1">ISO 9001:2015</p>
+                <p class="text-[10px] text-slate-400 mt-1">Certified Testing Lab</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Operating Principles -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Our Standards</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          What Guides Every Test We Conduct
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">1</span>
+          <h3 class="font-bold text-slate-900 text-base">Sterile & Gentle Phlebotomy</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Every blood collection is performed using sterile single-use vacuum systems, reducing discomfort and eliminating specimen contamination risks.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">2</span>
+          <h3 class="font-bold text-slate-900 text-base">Ethical & Transparent Service</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            We provide verified diagnostic reports at fair, affordable rates with no hidden fees or unnecessary duplicate testing.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <span class="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">3</span>
+          <h3 class="font-bold text-slate-900 text-base">Patient Respect & Promptness</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Polite staff, minimal wait times at our centre, and punctual home sample collection visits designed around your convenience.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="py-14 bg-brand-700 text-white text-center">
+    <div class="max-w-4xl mx-auto px-4 space-y-5">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        Have Questions About a Blood Test or Package?
+      </h2>
+      <p class="text-sm text-brand-100 max-w-xl mx-auto">
+        Speak directly with our laboratory staff at Russell Chowk, Jabalpur. We are glad to guide you.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4 pt-2">
+        <a
+          href="tel:09300755303"
+          class="px-6 py-3 rounded-xl bg-white text-brand-900 font-extrabold text-xs shadow-md hover:bg-brand-50"
+        >
+          Call 09300755303
+        </a>
+        <a
+          href="/contact"
+          class="px-6 py-3 rounded-xl bg-brand-800 text-white font-bold text-xs border border-brand-600 hover:bg-brand-900"
+        >
+          Find Our Location
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

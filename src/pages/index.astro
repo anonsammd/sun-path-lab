@@ -1,0 +1,586 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PackageCard from '../components/PackageCard.astro';
+import { db } from '../db';
+import { packages, siteSettings } from '../db/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import { siteConfig } from '../config/site';
+
+export const prerender = false;
+
+// Fetch live settings and popular diagnostic packages from PostgreSQL
+const [settingsRows, featuredPackages] = await Promise.all([
+  db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1),
+  db
+    .select()
+    .from(packages)
+    .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true), eq(packages.isFeatured, true)))
+    .orderBy(packages.sortOrder, desc(packages.createdAt))
+    .limit(4),
+]);
+
+const settings = settingsRows[0] || {
+  siteName: siteConfig.name,
+  heroHeadline: 'Reliable Pathology & Blood Testing in Jabalpur',
+  heroSubheadline: 'Serving Russell Chowk & Jabalpur with accurate blood tests, thyroid & iron panels, health packages, and convenient doorstep home sample collection.',
+  aboutOverview: siteConfig.description,
+  operatingHours: siteConfig.hours.status,
+  address: siteConfig.address.street,
+  landmark: siteConfig.address.landmark,
+  primaryPhone: siteConfig.contact.primaryPhone,
+  whatsappNumber: siteConfig.contact.whatsappNumber,
+};
+
+const waUrl = `https://wa.me/91${settings.whatsappNumber}?text=Hello%20Sun%20Path%20Lab,%20I%20would%20like%20to%20request%20a%20home%20sample%20collection.`;
+
+// Verified reviews snapshot from Google listing
+const reviews = [
+  {
+    name: 'Archana Yadav',
+    quote: 'Very satisfied with the staff\'s professionalism and speedy service.',
+    rating: 5,
+  },
+  {
+    name: 'Chandramani Soni',
+    quote: 'The home collection service arrived on time and was careful and helpful.',
+    rating: 5,
+  },
+  {
+    name: 'Sukhendra Vishwakarma',
+    quote: 'Service is excellent and report quality is excellent.',
+    rating: 5,
+  },
+  {
+    name: 'Kalyani Dadhore',
+    quote: 'The staff were polite and the blood-sample experience was good.',
+    rating: 5,
+  },
+  {
+    name: 'Reeta Marko',
+    quote: 'On-time reports, affordable prices and friendly staff.',
+    rating: 5,
+  },
+  {
+    name: 'Pratibha Jaiswal',
+    quote: 'Very quick response, fantastic service and trustworthy reports.',
+    rating: 5,
+  },
+];
+
+const faqs = [
+  {
+    q: 'How can I schedule a home sample collection in Jabalpur?',
+    a: 'You can easily request a home visit by calling our laboratory directly at 09300755303 or messaging us on WhatsApp. Our trained phlebotomist will arrive with sterilized collection equipment at your preferred morning or daytime slot.',
+  },
+  {
+    q: 'Do I need to fast before my blood test or health checkup?',
+    a: 'For blood sugar fasting, lipid profiles, and comprehensive health checkups, an overnight fast of 10 to 12 hours is generally recommended (plain water is allowed). For routine complete blood counts (CBC) or emergency parameters, fasting is usually not required. Contact our staff to confirm for your specific test.',
+  },
+  {
+    q: 'How and when will I receive my diagnostic reports?',
+    a: 'Most routine blood investigations and health panel reports are available the same day. Reports can be collected in person from our Russell Chowk centre or delivered directly via WhatsApp / PDF for your physician consultation.',
+  },
+  {
+    q: 'Where is Sun Path Lab located in Jabalpur?',
+    a: 'We are conveniently located at Shop No. 2, Sidhhi Vinayak Plaza, directly in front of the Jabalpur Hospital Old Gate at Russell Chowk, Jabalpur (Madhya Pradesh – 482001).',
+  },
+  {
+    q: 'Is Sun Path Lab certified?',
+    a: 'Yes, Sun Path Lab maintains an ISO 9001:2015 certified quality management system ensuring systematic calibration of analytical instruments and rigorous specimen handling standards.',
+  },
+];
+---
+
+<BaseLayout
+  title="Sun Path Lab — Best Pathology & Blood Test Lab in Jabalpur"
+  description="Sun Path Lab offers reliable blood testing, thyroid & iron panels, full body health checkups, and convenient home sample collection at Russell Chowk, Jabalpur."
+>
+  <!-- 1. Hero Section -->
+  <section class="relative bg-gradient-to-b from-brand-50/60 via-white to-white py-16 sm:py-24 border-b border-slate-100 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <!-- Hero Text -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center gap-2 bg-brand-100 text-brand-900 px-3 py-1.5 rounded-full text-xs font-bold border border-brand-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Russell Chowk, Jabalpur • ISO 9001:2015 Certified</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            {settings.heroHeadline}
+          </h1>
+
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
+            {settings.heroSubheadline}
+          </p>
+
+          <!-- Verified Badges List -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs font-semibold text-slate-700">
+            <div class="flex items-center gap-1.5 whitespace-nowrap">
+              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Doorstep Collection</span>
+            </div>
+            <div class="flex items-center gap-1.5 whitespace-nowrap">
+              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Same-Day Reports</span>
+            </div>
+            <div class="flex items-center gap-1.5 whitespace-nowrap col-span-2 sm:col-span-1">
+              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>★ 4.9 (77 Reviews)</span>
+            </div>
+          </div>
+
+          <!-- Hero Action CTAs -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3">
+            <a
+              href="tel:09300755303"
+              class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-700 hover:bg-brand-800 transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap"
+            >
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>Call Lab (09300755303)</span>
+            </a>
+
+            <a
+              href="/home-collection"
+              class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-brand-900 bg-brand-100 hover:bg-brand-200 border border-brand-300 transition-all cursor-pointer whitespace-nowrap"
+            >
+              <span>Book Home Collection</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Laboratory Visual -->
+        <div class="lg:col-span-5">
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            <div class="relative bg-white rounded-2xl p-2.5 sm:p-3 shadow-xl border border-slate-200 overflow-hidden">
+              <img
+                src="/images/reception.webp"
+                alt="Sun Path Lab Patient Registration & Reception"
+                class="w-full h-56 sm:h-64 lg:h-72 object-cover rounded-xl"
+                width="600"
+                height="400"
+                loading="eager"
+              />
+              <div class="p-3.5 bg-slate-50 rounded-xl mt-2.5 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-slate-900 truncate">Sun Path Lab Centre</p>
+                  <p class="text-[11px] text-slate-500 truncate">Opp. Jabalpur Hospital Old Gate, Russell Chowk</p>
+                </div>
+                <span class="text-[11px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 whitespace-nowrap flex-shrink-0 self-start sm:self-auto">
+                  Open till 10 PM
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Laboratory Introduction -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-4">
+        <h2 class="text-xs font-bold uppercase tracking-widest text-brand-600">
+          About Our Jabalpur Diagnostic Centre
+        </h2>
+        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          A Patient-First Diagnostic Service in Russell Chowk
+        </p>
+        <p class="text-base text-slate-600 leading-relaxed">
+          {settings.aboutOverview}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+        <div class="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+          <div class="w-12 h-12 mx-auto rounded-full bg-brand-100 text-brand-700 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Accurate Reports</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Strict quality standards and calibrated instrumentation to provide dependable clinical information to your doctor.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+          <div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Punctual & Speedy</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Prompt report delivery with same-day results for routine blood indices, ensuring no treatment delay.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+          <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Hygienic Home Collection</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Careful, sterile blood collection by polite phlebotomists at your residence across Jabalpur city.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Popular Diagnostic Packages (From PostgreSQL) -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Featured Diagnostic Tests</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+            Popular Health Checkups & Panels
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">
+            Verified testing panels designed for preventive screening and symptom investigation.
+          </p>
+        </div>
+        <a
+          href="/packages"
+          class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 hover:text-brand-900"
+        >
+          <span>View All Diagnostic Packages</span>
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <!-- Packages Dynamic Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {featuredPackages.map((pkg) => (
+          <PackageCard pkg={pkg} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Diagnostic Services Overview -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Clinical Capabilities</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Comprehensive Pathology Services
+        </h2>
+        <p class="text-sm text-slate-500">
+          Covering routine health monitoring and specialized disease investigation profiles.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Service 1 -->
+        <div class="p-6 rounded-xl border border-slate-200 hover:border-brand-300 transition-colors bg-white shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
+            01
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Blood Sample Testing (CBC)</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Automated complete blood counts evaluating red and white blood cells, platelets, hemoglobin indices, and ESR for infection or fatigue detection.
+          </p>
+          <a href="/packages" class="text-xs font-bold text-brand-600 inline-block pt-1 hover:underline">
+            View Blood Panels &rarr;
+          </a>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="p-6 rounded-xl border border-slate-200 hover:border-brand-300 transition-colors bg-white shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
+            02
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Thyroid Hormone Profile</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Sensitive TSH, Total T3, and Total T4 assays supporting clinical management of hyperthyroidism, hypothyroidism, and metabolic regulation.
+          </p>
+          <a href="/packages" class="text-xs font-bold text-brand-600 inline-block pt-1 hover:underline">
+            View Thyroid Tests &rarr;
+          </a>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="p-6 rounded-xl border border-slate-200 hover:border-brand-300 transition-colors bg-white shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
+            03
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Iron & Anemia Screening</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Serum Iron, Ferritin, and Total Iron Binding Capacity (TIBC) testing to identify latent iron stores deficiency and chronic fatigue causes.
+          </p>
+          <a href="/packages" class="text-xs font-bold text-brand-600 inline-block pt-1 hover:underline">
+            View Iron Panels &rarr;
+          </a>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="p-6 rounded-xl border border-slate-200 hover:border-brand-300 transition-colors bg-white shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
+            04
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Diabetes & Glucose Profile</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Fasting glucose, postprandial sugar, and HbA1c testing for precise blood sugar monitoring and diabetic management.
+          </p>
+          <a href="/packages" class="text-xs font-bold text-brand-600 inline-block pt-1 hover:underline">
+            View Diabetes Tests &rarr;
+          </a>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="p-6 rounded-xl border border-slate-200 hover:border-brand-300 transition-colors bg-white shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
+            05
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Lipid, Liver & Kidney Function</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Biochemical profiles measuring cholesterol fractions, bilirubin, liver enzymes (SGOT/SGPT), serum creatinine, and uric acid.
+          </p>
+          <a href="/packages" class="text-xs font-bold text-brand-600 inline-block pt-1 hover:underline">
+            View Organ Panels &rarr;
+          </a>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="p-6 rounded-xl border border-brand-200 bg-brand-50/40 transition-colors shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold">
+            06
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Doorstep Home Collection</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Convenient collection for elderly parents, working professionals, and busy families anywhere in Jabalpur.
+          </p>
+          <a href="/home-collection" class="text-xs font-bold text-brand-700 inline-block pt-1 hover:underline">
+            Book Home Visit &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. How Home Sample Collection Works -->
+  <section class="py-16 bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-400">Doorstep Healthcare</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          How Doorstep Collection Works
+        </h2>
+        <p class="text-sm text-slate-400">
+          Four simple steps to get blood tests done without waiting in laboratory queues.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 space-y-3">
+          <span class="text-2xl font-black text-brand-400">01</span>
+          <h3 class="font-bold text-white text-base">Book via Phone / WhatsApp</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Contact us at 09300755303 with your test requirements and preferred time slot.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 space-y-3">
+          <span class="text-2xl font-black text-brand-400">02</span>
+          <h3 class="font-bold text-white text-base">Sterile Home Visit</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A trained phlebotomist visits with single-use vacutainer needles and barcoded tubes.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 space-y-3">
+          <span class="text-2xl font-black text-brand-400">03</span>
+          <h3 class="font-bold text-white text-base">Laboratory Analysis</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Samples are transported in temperature-controlled boxes and analyzed at Russell Chowk.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 space-y-3">
+          <span class="text-2xl font-black text-brand-400">04</span>
+          <h3 class="font-bold text-white text-base">Prompt Report Delivery</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Receive verified diagnostic reports on WhatsApp/Email and hard copies upon request.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-10 text-center">
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-lg transition-colors"
+        >
+          <span>Schedule Home Collection on WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Verified Patient Feedback Snapshot -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Reputation & Experience</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          What Patients Say About Sun Path Lab
+        </h2>
+        <p class="text-sm text-slate-500">
+          Rated <strong class="text-slate-800">4.9 / 5</strong> based on 77 Google reviews. Authentic customer sentiment.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {reviews.map((r) => (
+          <div class="p-6 rounded-xl border border-slate-200 bg-slate-50/60 shadow-sm flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center text-amber-400 text-sm">
+                {'★'.repeat(r.rating)}
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 italic leading-relaxed">
+                “{r.quote}”
+              </p>
+            </div>
+            <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-900">{r.name}</span>
+              <span class="text-[11px] text-slate-400">Google Review</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Russell Chowk Location & Map -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-5 space-y-5">
+          <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Convenient Russell Chowk Location</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Easy to Reach in Central Jabalpur
+          </h2>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Sun Path Lab is situated right opposite the Jabalpur Hospital Old Gate at Russell Chowk. Ample nearby transport and central accessibility.
+          </p>
+
+          <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2 text-xs">
+            <p class="font-bold text-slate-900">Address:</p>
+            <p class="text-slate-600 leading-normal">{settings.address}</p>
+            <p class="text-brand-700 font-semibold pt-1">Landmark: {settings.landmark}</p>
+            <p class="text-slate-500">Google Plus Code: <span class="font-mono">{siteConfig.address.plusCode}</span></p>
+          </div>
+
+          <div class="pt-2 flex flex-wrap gap-3">
+            <a
+              href="https://maps.google.com/?q=Shop+2+Sidhhi+Vinayak+Plaza+Russell+Chowk+Jabalpur"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Get Directions on Google Maps</span>
+            </a>
+            <a
+              href="tel:09300755303"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition-colors"
+            >
+              <span>Call Lab (09300755303)</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-md overflow-hidden">
+            <iframe
+              src="https://maps.google.com/maps?q=Russell+Chowk+Jabalpur&t=&z=16&ie=UTF8&iwloc=&output=embed"
+              class="w-full h-80 sm:h-96 rounded-xl border-0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Sun Path Lab Google Maps Location"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Frequently Asked Questions (FAQ) -->
+  <section class="py-16 bg-white border-b border-slate-100">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center space-y-3 mb-10">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Patient Helpdesk</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Frequently Asked Questions
+        </h2>
+      </div>
+
+      <div class="space-y-4">
+        {faqs.map((faq) => (
+          <details class="group bg-slate-50 border border-slate-200 rounded-xl p-5 [&_summary::-webkit-details-marker]:hidden">
+            <summary class="flex items-center justify-between cursor-pointer font-bold text-sm sm:text-base text-slate-900">
+              <span>{faq.q}</span>
+              <span class="ml-4 flex-shrink-0 text-slate-400 group-open:rotate-180 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </summary>
+            <p class="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3">
+              {faq.a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Final Call to Action -->
+  <section class="py-16 bg-brand-700 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+      <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+        Need a Diagnostic Blood Test or Full Body Checkup?
+      </h2>
+      <p class="text-brand-100 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+        Visit our centre at Russell Chowk or schedule a doorstep sample collection anywhere in Jabalpur. Fast results, ethical reporting, and courteous staff.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <a
+          href="tel:09300755303"
+          class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-brand-900 font-extrabold text-sm shadow-lg hover:bg-brand-50 transition-colors"
+        >
+          Call Sun Path Lab: 09300755303
+        </a>
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm shadow-lg transition-colors flex items-center justify-center gap-2"
+        >
+          <span>Chat on WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

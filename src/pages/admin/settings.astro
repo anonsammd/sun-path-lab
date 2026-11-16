@@ -1,0 +1,345 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { siteSettings } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import { siteConfig } from '../../config/site';
+
+export const prerender = false;
+
+const rows = await db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1);
+const settings = rows[0] || {
+  siteName: siteConfig.name,
+  siteTagline: siteConfig.tagline,
+  primaryPhone: siteConfig.contact.primaryPhone,
+  secondaryPhone: siteConfig.contact.secondaryPhone,
+  landline: siteConfig.contact.landline,
+  whatsappNumber: siteConfig.contact.whatsappNumber,
+  address: siteConfig.address.street,
+  landmark: siteConfig.address.landmark,
+  plusCode: siteConfig.address.plusCode,
+  googleMapsUrl: 'https://maps.google.com/?q=Shop+2+Sidhhi+Vinayak+Plaza+Russell+Chowk+Jabalpur',
+  operatingHours: siteConfig.hours.status,
+  noticeBanner: 'Doorstep home sample collection available across Jabalpur. Call or WhatsApp to schedule.',
+  isNoticeBannerActive: true,
+  heroHeadline: 'Reliable Pathology & Blood Testing in Jabalpur',
+  heroSubheadline: 'Serving Russell Chowk & Jabalpur with accurate diagnostic tests, thyroid & iron panels, full body health checkups, and convenient home sample collection.',
+  aboutOverview: siteConfig.description,
+  homeCollectionInfo: 'Our trained phlebotomists follow strict hygienic collection standards and visit your home across Jabalpur.',
+};
+---
+
+<AdminLayout title="Site Content & CMS Settings" activeTab="settings">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Website Content Management</h2>
+        <p class="text-sm text-slate-500 mt-1">
+          Update phone numbers, address, announcements, hero text, and hours. Updates reflect live immediately.
+        </p>
+      </div>
+    </div>
+
+    <div id="settings-alert" class="hidden p-4 rounded-lg text-sm font-medium"></div>
+
+    <form id="settings-form" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-8">
+      <!-- Section 1: Notice Banner -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center justify-between">
+          <span>Announcement / Top Alert Banner</span>
+          <label class="flex items-center gap-2 cursor-pointer normal-case">
+            <input
+              type="checkbox"
+              id="isNoticeBannerActive"
+              name="isNoticeBannerActive"
+              checked={settings.isNoticeBannerActive}
+              class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-4 w-4"
+            />
+            <span class="text-xs font-semibold text-slate-700">Display on Public Site</span>
+          </label>
+        </h3>
+        <div>
+          <label for="noticeBanner" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+            Banner Announcement Text
+          </label>
+          <input
+            type="text"
+            id="noticeBanner"
+            name="noticeBanner"
+            value={settings.noticeBanner || ''}
+            placeholder="e.g. Home sample collection available across Jabalpur. Call or WhatsApp to book."
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+          />
+        </div>
+      </div>
+
+      <!-- Section 2: Contact Numbers & WhatsApp -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Contact Numbers & WhatsApp
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="primaryPhone" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Primary Mobile (Click-to-call) *
+            </label>
+            <input
+              type="text"
+              id="primaryPhone"
+              name="primaryPhone"
+              required
+              value={settings.primaryPhone}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="whatsappNumber" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              WhatsApp Number (10 digits) *
+            </label>
+            <input
+              type="text"
+              id="whatsappNumber"
+              name="whatsappNumber"
+              required
+              value={settings.whatsappNumber}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="secondaryPhone" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Secondary Mobile
+            </label>
+            <input
+              type="text"
+              id="secondaryPhone"
+              name="secondaryPhone"
+              value={settings.secondaryPhone || ''}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="landline" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Landline Number
+            </label>
+            <input
+              type="text"
+              id="landline"
+              name="landline"
+              value={settings.landline || ''}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Physical Location & Hours -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Location & Working Hours
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label for="address" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Full Physical Address *
+            </label>
+            <textarea
+              id="address"
+              name="address"
+              rows="2"
+              required
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{settings.address}</textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="landmark" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Landmark
+              </label>
+              <input
+                type="text"
+                id="landmark"
+                name="landmark"
+                value={settings.landmark || ''}
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+
+            <div>
+              <label for="plusCode" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Google Plus Code
+              </label>
+              <input
+                type="text"
+                id="plusCode"
+                name="plusCode"
+                value={settings.plusCode || ''}
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+              />
+            </div>
+
+            <div>
+              <label for="operatingHours" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Operating Hours Label *
+              </label>
+              <input
+                type="text"
+                id="operatingHours"
+                name="operatingHours"
+                required
+                value={settings.operatingHours}
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+
+            <div>
+              <label for="googleMapsUrl" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Google Maps Link
+              </label>
+              <input
+                type="url"
+                id="googleMapsUrl"
+                name="googleMapsUrl"
+                value={settings.googleMapsUrl || ''}
+                class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Homepage Copywriting & CMS Content -->
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 mb-4">
+          Homepage Content & Story
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label for="heroHeadline" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Hero Section Headline *
+            </label>
+            <input
+              type="text"
+              id="heroHeadline"
+              name="heroHeadline"
+              required
+              value={settings.heroHeadline}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          <div>
+            <label for="heroSubheadline" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Hero Supporting Subheadline *
+            </label>
+            <textarea
+              id="heroSubheadline"
+              name="heroSubheadline"
+              rows="2"
+              required
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{settings.heroSubheadline}</textarea>
+          </div>
+
+          <div>
+            <label for="aboutOverview" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              About Lab Story (Introduction) *
+            </label>
+            <textarea
+              id="aboutOverview"
+              name="aboutOverview"
+              rows="3"
+              required
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{settings.aboutOverview}</textarea>
+          </div>
+
+          <div>
+            <label for="homeCollectionInfo" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+              Home Sample Collection Description
+            </label>
+            <textarea
+              id="homeCollectionInfo"
+              name="homeCollectionInfo"
+              rows="2"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"
+            >{settings.homeCollectionInfo}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-end">
+        <button
+          type="submit"
+          id="save-btn"
+          class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer"
+        >
+          Save All Changes to Live Site
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script is:inline>
+    const csrfToken = document.getElementById('csrf-meta')?.dataset.csrfToken || '';
+    const form = document.getElementById('settings-form');
+    const alertBox = document.getElementById('settings-alert');
+    const saveBtn = document.getElementById('save-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving changes...';
+      alertBox.className = 'hidden';
+
+      const payload = {
+        noticeBanner: document.getElementById('noticeBanner').value.trim(),
+        isNoticeBannerActive: document.getElementById('isNoticeBannerActive').checked,
+        primaryPhone: document.getElementById('primaryPhone').value.trim(),
+        whatsappNumber: document.getElementById('whatsappNumber').value.trim(),
+        secondaryPhone: document.getElementById('secondaryPhone').value.trim(),
+        landline: document.getElementById('landline').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        landmark: document.getElementById('landmark').value.trim(),
+        plusCode: document.getElementById('plusCode').value.trim(),
+        operatingHours: document.getElementById('operatingHours').value.trim(),
+        googleMapsUrl: document.getElementById('googleMapsUrl').value.trim(),
+        heroHeadline: document.getElementById('heroHeadline').value.trim(),
+        heroSubheadline: document.getElementById('heroSubheadline').value.trim(),
+        aboutOverview: document.getElementById('aboutOverview').value.trim(),
+        homeCollectionInfo: document.getElementById('homeCollectionInfo').value.trim(),
+      };
+
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update settings');
+
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+        alertBox.textContent = 'Settings updated successfully! The live website is updated.';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save All Changes to Live Site';
+      } catch (err) {
+        alertBox.className = 'p-4 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200 block';
+        alertBox.textContent = err.message || 'Error updating settings';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save All Changes to Live Site';
+      }
+    });
+  </script>
+</AdminLayout>

@@ -1,0 +1,214 @@
+---
+import { siteConfig } from '../config/site';
+
+interface Props {
+  currentPath?: string;
+  phone?: string | null;
+  hours?: string | null;
+  noticeBanner?: string | null;
+  isNoticeBannerActive?: boolean;
+}
+
+const {
+  currentPath = Astro.url.pathname,
+  phone = siteConfig.contact.primaryPhoneDisplay,
+  hours = siteConfig.hours.status,
+  noticeBanner,
+  isNoticeBannerActive = false,
+} = Astro.props;
+
+const navItems = siteConfig.navLinks;
+---
+
+<header class="w-full bg-white border-b border-slate-200 sticky top-0 z-40 transition-shadow duration-200">
+  <!-- Top Notice Alert Banner -->
+  {isNoticeBannerActive && noticeBanner && (
+    <div class="bg-brand-50 border-b border-brand-200 text-brand-900 text-xs py-2 px-3 sm:px-4 text-center font-medium">
+      <div class="max-w-7xl mx-auto flex items-center justify-center gap-2">
+        <svg class="w-3.5 h-3.5 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="leading-snug">{noticeBanner}</span>
+      </div>
+    </div>
+  )}
+
+  <!-- Top Utilities Bar (Desktop only, single-line, clean) -->
+  <div class="bg-slate-900 text-slate-200 text-xs py-1.5 px-4 hidden xl:block">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <span class="flex items-center gap-1.5 text-slate-300">
+          <svg class="w-3.5 h-3.5 text-brand-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Russell Chowk, Jabalpur (Opp. Jabalpur Hospital Old Gate)
+        </span>
+        <span class="flex items-center gap-1.5 text-slate-300">
+          <svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {hours}
+        </span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-amber-400 font-semibold tracking-wide">★ 4.9 (77 Google Reviews)</span>
+        <span class="text-slate-600">|</span>
+        <a href="tel:09300755303" class="hover:text-white transition-colors flex items-center gap-1.5 font-bold text-brand-300">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+            <path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-3.8-6.6-6.6l2.2-2.2c.3-.3.4-.7.2-1-.3-1.1-.5-2.3-.5-3.5 0-.6-.4-1-1-1H4c-.6 0-1 .4-1 1 0 9.4 7.6 17 17 17 .6 0 1-.4 1-1v-3.5c0-.6-.4-1-1-1z"/>
+          </svg>
+          <span>Call: 09300755303</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Bar -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-18 sm:h-20 gap-4">
+      <!-- Brand Identity (Single clean transparent logo in standard size) -->
+      <a
+        href="/"
+        class="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-lg py-1 flex-shrink-0 transition-opacity hover:opacity-95"
+        aria-label="Sun Path Lab Home"
+      >
+        <img
+          src="/images/logo.png"
+          alt="Sun Path Lab — Jabalpur Diagnostic Pathology Laboratory"
+          class="h-10 sm:h-12 md:h-14 w-auto object-contain"
+          width="190"
+          height="56"
+          loading="eager"
+        />
+      </a>
+
+      <!-- Desktop Navigation Links (Visible on xl: and large laptops) -->
+      <nav class="hidden xl:flex items-center gap-1 flex-shrink-0" aria-label="Main Navigation">
+        {navItems.map((item) => {
+          const isActive = currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href));
+          return (
+            <a
+              href={item.href}
+              class={`px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'text-brand-700 bg-brand-50'
+                  : 'text-slate-700 hover:text-brand-700 hover:bg-slate-50'
+              }`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          );
+        })}
+      </nav>
+
+      <!-- Desktop Action Buttons -->
+      <div class="hidden xl:flex items-center gap-2.5 flex-shrink-0">
+        <a
+          href="/home-collection"
+          class="inline-flex items-center justify-center px-3.5 py-2 rounded-lg text-xs font-bold text-brand-800 bg-brand-100 hover:bg-brand-200 border border-brand-300 transition-colors cursor-pointer whitespace-nowrap"
+        >
+          Book Home Sample
+        </a>
+        <a
+          href="tel:09300755303"
+          class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white bg-brand-700 hover:bg-brand-800 transition-colors shadow-sm cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-brand-600"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <span>Call 09300755303</span>
+        </a>
+      </div>
+
+      <!-- Mobile & Tablet Quick Actions + Hamburger Toggle -->
+      <div class="flex items-center gap-2 xl:hidden">
+        <a
+          href="tel:09300755303"
+          class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-brand-700 hover:bg-brand-800 whitespace-nowrap"
+          aria-label="Call Sun Path Lab"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <span>Call</span>
+        </a>
+
+        <button
+          id="mobile-menu-btn"
+          type="button"
+          class="inline-flex items-center justify-center p-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-w-[44px] min-h-[44px]"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          aria-label="Toggle navigation menu"
+        >
+          <svg id="menu-icon-open" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg id="menu-icon-close" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu" class="hidden xl:hidden border-t border-slate-200 bg-white shadow-xl px-4 pt-3 pb-6">
+    <nav class="flex flex-col gap-1 pb-4 border-b border-slate-100" aria-label="Mobile Navigation">
+      {navItems.map((item) => {
+        const isActive = currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href));
+        return (
+          <a
+            href={item.href}
+            class={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer min-h-[44px] flex items-center ${
+              isActive
+                ? 'text-brand-700 bg-brand-50'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </nav>
+
+    <div class="pt-4 flex flex-col sm:flex-row gap-2.5">
+      <a
+        href="/home-collection"
+        class="w-full text-center py-3 px-4 rounded-lg text-xs font-bold text-brand-800 bg-brand-100 border border-brand-300 min-h-[44px] flex items-center justify-center"
+      >
+        Book Home Sample Collection
+      </a>
+      <a
+        href="tel:09300755303"
+        class="w-full text-center py-3 px-4 rounded-lg text-xs font-bold text-white bg-brand-700 hover:bg-brand-800 min-h-[44px] flex items-center justify-center gap-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+        </svg>
+        Call 09300755303
+      </a>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const openIcon = document.getElementById('menu-icon-open');
+  const closeIcon = document.getElementById('menu-icon-close');
+
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !isExpanded);
+      menu.classList.toggle('hidden');
+      if (openIcon && closeIcon) {
+        openIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+      }
+    });
+  }
+</script>
