@@ -15,6 +15,9 @@ dist/
 .env.local
 *.env
 
+# Archives
+*.zip
+
 # System / Editor files
 .DS_Store
 Thumbs.db
