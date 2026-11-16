@@ -8,12 +8,17 @@ import PackageCard from '../components/PackageCard.astro';
 
 export const prerender = false;
 
-const featuredPackages = await db
-  .select()
-  .from(packages)
-  .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
-  .orderBy(packages.sortOrder, desc(packages.createdAt))
-  .limit(3);
+let featuredPackages: any[] = [];
+try {
+  featuredPackages = await db
+    .select()
+    .from(packages)
+    .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
+    .orderBy(packages.sortOrder, desc(packages.createdAt))
+    .limit(3);
+} catch (err) {
+  console.error('Database query fallback on services page:', err);
+}
 
 const breadcrumbs = [{ name: 'Diagnostic Services', url: '/services' }];
 ---

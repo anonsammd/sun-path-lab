@@ -8,16 +8,23 @@ import { siteConfig } from '../config/site';
 
 export const prerender = false;
 
-// Fetch live settings and popular diagnostic packages from PostgreSQL
-const [settingsRows, featuredPackages] = await Promise.all([
-  db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1),
-  db
-    .select()
-    .from(packages)
-    .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true), eq(packages.isFeatured, true)))
-    .orderBy(packages.sortOrder, desc(packages.createdAt))
-    .limit(4),
-]);
+// Fetch live settings and popular diagnostic packages from PostgreSQL with graceful fallback
+let settingsRows: any[] = [];
+let featuredPackages: any[] = [];
+
+try {
+  [settingsRows, featuredPackages] = await Promise.all([
+    db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1),
+    db
+      .select()
+      .from(packages)
+      .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true), eq(packages.isFeatured, true)))
+      .orderBy(packages.sortOrder, desc(packages.createdAt))
+      .limit(4),
+  ]);
+} catch (err) {
+  console.error('Database query fallback on homepage:', err);
+}
 
 const settings = settingsRows[0] || {
   siteName: siteConfig.name,

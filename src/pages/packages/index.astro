@@ -8,15 +8,22 @@ import { eq, and, desc } from 'drizzle-orm';
 
 export const prerender = false;
 
-// Fetch live published packages and categories
-const [allPackages, allCategories] = await Promise.all([
-  db
-    .select()
-    .from(packages)
-    .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
-    .orderBy(packages.sortOrder, desc(packages.createdAt)),
-  db.select().from(categories).orderBy(categories.sortOrder),
-]);
+// Fetch live published packages and categories with graceful fallback
+let allPackages: any[] = [];
+let allCategories: any[] = [];
+
+try {
+  [allPackages, allCategories] = await Promise.all([
+    db
+      .select()
+      .from(packages)
+      .where(and(eq(packages.isDeleted, false), eq(packages.isPublished, true)))
+      .orderBy(packages.sortOrder, desc(packages.createdAt)),
+    db.select().from(categories).orderBy(categories.sortOrder),
+  ]);
+} catch (err) {
+  console.error('Database query fallback on packages page:', err);
+}
 
 const breadcrumbs = [{ name: 'Diagnostic Tests & Packages', url: '/packages' }];
 ---

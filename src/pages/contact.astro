@@ -8,7 +8,13 @@ import { siteConfig } from '../config/site';
 
 export const prerender = false;
 
-const rows = await db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1);
+let rows: any[] = [];
+try {
+  rows = await db.select().from(siteSettings).where(eq(siteSettings.id, 'default')).limit(1);
+} catch (err) {
+  console.error('Database query fallback on contact page:', err);
+}
+
 const settings = rows[0] || {
   address: siteConfig.address.street,
   landmark: siteConfig.address.landmark,

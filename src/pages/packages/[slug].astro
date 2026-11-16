@@ -15,15 +15,21 @@ if (!slug) {
   return Astro.redirect('/packages', 302);
 }
 
-const rows = await db
-  .select({
-    package: packages,
-    categoryName: categories.name,
-  })
-  .from(packages)
-  .leftJoin(categories, eq(packages.categoryId, categories.id))
-  .where(and(eq(packages.slug, slug), eq(packages.isDeleted, false), eq(packages.isPublished, true)))
-  .limit(1);
+let rows: any[] = [];
+try {
+  rows = await db
+    .select({
+      package: packages,
+      categoryName: categories.name,
+    })
+    .from(packages)
+    .leftJoin(categories, eq(packages.categoryId, categories.id))
+    .where(and(eq(packages.slug, slug), eq(packages.isDeleted, false), eq(packages.isPublished, true)))
+    .limit(1);
+} catch (err) {
+  console.error('Database query fallback on package detail page:', err);
+  return Astro.redirect('/packages', 302);
+}
 
 if (rows.length === 0) {
   return Astro.redirect('/packages', 302);
@@ -114,7 +120,7 @@ const packageSchema = generatePackageSchema(pkg);
 
             {testsList.length > 0 ? (
               <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                {testsList.map((test) => (
+                {testsList.map((test: string) => (
                   <li class="flex items-start gap-2.5 p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs font-medium text-slate-800">
                     <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">
                       ✓
